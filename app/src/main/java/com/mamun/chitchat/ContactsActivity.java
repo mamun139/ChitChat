@@ -1,6 +1,9 @@
 package com.mamun.chitchat;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -10,6 +13,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -23,6 +27,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,8 +43,6 @@ public class ContactsActivity extends AppCompatActivity {
     private String userName="",profileImage="";
     private String calledBy="";
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,8 +54,6 @@ public class ContactsActivity extends AppCompatActivity {
         currentUserId =mAuth.getCurrentUser().getUid();
         contactsRef= FirebaseDatabase.getInstance().getReference().child("Contacts");
         userRef= FirebaseDatabase.getInstance().getReference().child("Users");
-
-
 
         findPeopleBtn=findViewById(R.id.find_people_btn);
         myContactsList=findViewById(R.id.contact_list);
@@ -114,6 +115,7 @@ public class ContactsActivity extends AppCompatActivity {
 
         FirebaseRecyclerAdapter<Contacts,ContactsViewHolder> firebaseRecyclerAdapter
                 =new FirebaseRecyclerAdapter<Contacts, ContactsViewHolder>(options) {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             protected void onBindViewHolder(@NonNull final ContactsViewHolder holder, int position, @NonNull Contacts model) {
                 final String listUserId=getRef(position).getKey();
@@ -145,6 +147,7 @@ public class ContactsActivity extends AppCompatActivity {
 
                     }
                 });
+
 
 
             }
@@ -223,5 +226,6 @@ public class ContactsActivity extends AppCompatActivity {
                 });
 
     }
+
 
 }

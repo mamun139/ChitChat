@@ -2,9 +2,12 @@ package com.mamun.chitchat;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
@@ -115,7 +118,6 @@ public class VideoChatActivity extends AppCompatActivity implements Session.Sess
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
         EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,VideoChatActivity.this);
     }
 
@@ -135,6 +137,8 @@ public class VideoChatActivity extends AppCompatActivity implements Session.Sess
             EasyPermissions.requestPermissions(this,"This App needs Mic and Camera Permissions,Please Allow to Continue.",RC_VIDEO_APP_PERM);
 
         }
+
+
     }
 
     @Override

@@ -2,10 +2,17 @@ package com.mamun.chitchat;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -38,6 +45,8 @@ public class RegistrationActivity extends AppCompatActivity {
     private String mVerificationId;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
     private ProgressDialog loadingBar;
+    private static final int PERMISSION_REQUEST_CODE = 200;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,9 +147,10 @@ public class RegistrationActivity extends AppCompatActivity {
 
         if (firebaseUser!=null)
         {
-            Intent homeIntent=new Intent(RegistrationActivity.this, ContactsActivity.class);
+            /*Intent homeIntent=new Intent(RegistrationActivity.this, ContactsActivity.class);
             startActivity(homeIntent);
-            finish();
+            finish();*/
+            sendUserToMainActivity();
         }
     }
 
@@ -163,9 +173,86 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     private void sendUserToMainActivity(){
-        Intent intent=new Intent(RegistrationActivity.this, ContactsActivity.class);
-        startActivity(intent);
-        finish();
+        if (checkPermission()) {
+            Intent intent=new Intent(RegistrationActivity.this, ContactsActivity.class);
+            startActivity(intent);
+            finish();
+
+        } else {
+            requestPermission();
+        }
+
+    }
+    private boolean checkPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted
+            return false;
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted
+            return false;
+        }
+        return true;
+    }
+
+    private void requestPermission() {
+       // String[] perms={Manifest.permission.INTERNET,Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO};
+
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO},
+                PERMISSION_REQUEST_CODE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_SHORT).show();
+
+                    // main logic
+                } else {
+                    Toast.makeText(getApplicationContext(), "Permission Denied", Toast.LENGTH_SHORT).show();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            showMessageOKCancel("You need to allow access permissions",
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                                requestPermission();
+                                            }
+                                        }
+                                    });
+                        }
+                        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            showMessageOKCancel("You need to allow access permissions",
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                                requestPermission();
+                                            }
+                                        }
+                                    });
+                        }
+                    }
+                }
+                break;
+        }
+    }
+
+    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
+        new AlertDialog.Builder(RegistrationActivity.this)
+                .setMessage(message)
+                .setPositiveButton("OK", okListener)
+                .setNegativeButton("Cancel", null)
+                .create()
+                .show();
     }
 
 }
